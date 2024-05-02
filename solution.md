@@ -59,6 +59,8 @@ Security Concerns:
 - For our Login page we have to use a CSRF token to prevent CSRF attacks.
 - We are going to use HTTPS in production.
 
+- Pagination
+- Implement something to check requests to 3rd party services times. If it is too long we should retry the request.
 
 ### Error Handling
 
