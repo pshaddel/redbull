@@ -6,27 +6,40 @@ on:
     branches:
       - main
 name: CI
+
 jobs:
-  CI:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup
+      - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 16
       - name: Install Packages
         run: npm install
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Lint
         run: npm run lint
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Run Test Containers
         run: docker compose -f docker-compose.test.yml up -d
-      - name: Sleep for 30s
+      - name: Sleep for 10s
         uses: juliangruber/sleep-action@v1
         with:
-          time: 30s
+          time: 10s
       - name: Test
-        run: export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres && npm run test -- --coverage
-      # - name: Upload coverage reports to Codecov
-      #   uses: codecov/codecov-action@v3
+        run: export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres && npm run test
