@@ -6,8 +6,8 @@ import { connect } from "../connections/db";
 describe("User Service", () => {
   beforeAll(async () => {
     const res = await connect();
-    console.log('res:', res);
-  })
+    console.log("res:", res);
+  });
   beforeEach(async () => {
     await UserModel.deleteMany();
   });
@@ -22,7 +22,7 @@ describe("User Service", () => {
       //Assert
       expect(result.body.name).toBe("testUser");
     });
-    it('Should get Bad Request when we pass an invalid email', async () => {
+    it("Should get Bad Request when we pass an invalid email", async () => {
       //Act
       const result = await request(app).post(endpoint).send({
         name: "testUser",
@@ -30,9 +30,8 @@ describe("User Service", () => {
       });
       //Assert
       expect(result.status).toBe(400);
-    }
-    );
-    it('Should get Bad Request when we are not passing name', async () => {
+    });
+    it("Should get Bad Request when we are not passing name", async () => {
       //Act
       const result = await request(app).post(endpoint).send({
         // name: "testUser",
@@ -40,7 +39,6 @@ describe("User Service", () => {
       });
       //Assert
       expect(result.status).toBe(400);
-    }
-    );
+    });
   });
 });
