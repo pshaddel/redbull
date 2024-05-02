@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { config } from "../config";
-import { userRouter } from "./user/user.route";
+import { userRouter } from "./modules/user/user.route";
 import "@total-typescript/ts-reset";
 import dotenv from "dotenv";
 import { connect } from "./connections/db";
