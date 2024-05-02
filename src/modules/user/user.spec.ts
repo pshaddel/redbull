@@ -1,7 +1,7 @@
 import request from "supertest";
-import { app } from "../app";
+import { app } from "../../app";
+import { connect } from "../../connections/db";
 import { UserModel } from "./user.model";
-import { connect } from "../connections/db";
 
 describe("User Service", () => {
   beforeAll(async () => {
