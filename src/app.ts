@@ -16,6 +16,7 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
+// Disable this in production
 app.use((_req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
@@ -29,7 +30,7 @@ app.get("/ping", (_req: Request, res: Response) => {
   res.send("pong");
 });
 
-app.use(userRouter);
+app.use("/api/v1/users", userRouter);
 
 app.use((_, res) => {
   res.status(404).send("Not found");
