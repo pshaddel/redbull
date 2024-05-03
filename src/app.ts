@@ -16,7 +16,7 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-if (process.env.NODE_ENV === "dev")
+if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test")
   app.use((_req: Request, res: Response, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
