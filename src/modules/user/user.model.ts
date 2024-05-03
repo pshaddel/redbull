@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const passwordRegex =
   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
+// move this to error handler
 const passwordError =
   "Password must contain at least 8 characters and a combination of lowercase, uppercase, number and a special character";
 
@@ -46,6 +47,8 @@ export type User = InferSchemaType<typeof UserSchema>;
  * */
 const passwordValidator = z
   .string()
+  .max(128)
+  .min(8)
   .regex(passwordRegex, { message: passwordError });
 
 /** Username requirements:

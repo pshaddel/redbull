@@ -16,15 +16,15 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-// Disable this in production
-app.use((_req: Request, res: Response, next: NextFunction) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, AUTHORIZATION"
-  );
-  next();
-});
+if (process.env.NODE_ENV === "dev")
+  app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, AUTHORIZATION"
+    );
+    next();
+  });
 
 app.get("/ping", (_req: Request, res: Response) => {
   res.send("pong");

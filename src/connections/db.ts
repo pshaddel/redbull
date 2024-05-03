@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export async function connect() {
   return new Promise((resolve, reject) => {
-    console.log("Connecting to database");
+    if (process.env.NODE_ENV === "dev") console.log("Connecting to database");
     mongoose.connect(
       (process.env as { DATABASE_URL: string }).DATABASE_URL,
       {}
@@ -15,8 +15,9 @@ export async function connect() {
       console.error("Database disconnected");
     });
     mongoose.connection.once("open", () => {
-      console.log("Database connected");
-      resolve(true);
+      if (process.env.NODE_ENV === "dev") console.log("Database connected");
+      // return the connection
+      resolve(mongoose.connection);
     });
   });
 }

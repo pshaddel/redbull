@@ -89,7 +89,7 @@ describe("User", () => {
       "firstname.lastname@domain.com",
       "email@subdomain.domain.com",
       "firstname+lastname@domain.com",
-      "email@123.123.123.123",
+      "email@123.123.123.123", // our code does not check validation for IP address
       "email@[123.123.123.123]",
       '"email"@domain.com',
       "1234567890@domain.com",

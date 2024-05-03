@@ -12,7 +12,7 @@
     "test:ci": "jest --forceExit --detectOpenHandles --runInBand --silent  --workerIdleMemoryLimit=512MB",
     "posttest": "docker compose -f docker-compose.test.yml down",
     "prestart:dev": "docker compose up -d",
-    "start:dev": "tsc-watch --onSuccess 'node ./dist/src/app.js'",
+    "start:dev": "NODE_ENV=dev tsc-watch --onSuccess 'node ./dist/src/app.js'",
     "poststart:dev": "docker compose down",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
