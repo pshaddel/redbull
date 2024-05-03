@@ -1,4 +1,5 @@
 import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 
 export async function hashPassword(password: string) {
   try {
@@ -29,4 +30,65 @@ export async function verifyPassword(
     console.log(error);
     return false;
   }
+}
+
+export async function createJWTToken(payload: { username: string }) {
+  const privateKey = process.env.JWT_PRIVATE_KEY as string;
+  return new Promise((resolve) =>
+    jwt.sign(
+      { ...payload, type: "access_token" },
+      privateKey,
+      {
+        expiresIn: "1h",
+        algorithm: "RS256"
+      },
+      function (err, token) {
+        if (err) {
+          resolve(null);
+        }
+        resolve(token);
+      }
+    )
+  );
+}
+
+export async function verifyJWTToken<T>(
+  token: string
+): Promise<(T & { type: "access_token" | "refresh_token" }) | null> {
+  const publicKey = process.env.JWT_PUBLIC_KEY as string;
+  return new Promise((resolve) =>
+    jwt.verify(
+      token,
+      publicKey,
+      {
+        algorithms: ["RS256"]
+      },
+      function (err, decoded) {
+        if (err) {
+          resolve(null);
+        }
+        resolve(decoded as T & { type: "access_token" | "refresh_token" });
+      }
+    )
+  );
+}
+
+export async function createRefreshToken(payload: { username: string }) {
+  const privateKey = process.env.JWT_PRIVATE_KEY as string;
+  return new Promise((resolve) =>
+    jwt.sign(
+      { ...payload, type: "refresh_token" },
+      privateKey,
+      {
+        expiresIn: "7d",
+        algorithm: "RS256"
+      },
+      function (err, token) {
+        if (err) {
+          resolve(null);
+        }
+        resolve(token);
+      }
+    )
+  );
 }
