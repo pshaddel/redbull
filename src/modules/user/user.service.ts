@@ -1,5 +1,8 @@
+import {
+  hashPassword,
+  verifyPassword
+} from "../authentication/authentication.service";
 import { User, UserCreationObject, UserModel } from "./user.model";
-import argon2 from "argon2";
 
 export async function findUserByUsername(
   username: string
@@ -11,11 +14,10 @@ export async function registerUser(
   user: UserCreationObject
 ): Promise<{ error: string | null }> {
   try {
-    const hash = await argon2.hash(user.password, {
-      type: argon2.argon2id,
-      salt: Buffer.from("salt should be more"),
-      secret: Buffer.from("secret should")
-    });
+    const { hash, error } = await hashPassword(user.password);
+    if (error) {
+      return { error }; // maybe returning an status
+    }
     await UserModel.create({
       username: user.username,
       password: hash
@@ -36,10 +38,10 @@ export async function authenticateUser(
   if (!user) {
     // log attempted login with wrong username
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await argon2.verify((process.env as any).TEST_ARGON_HASH, "password"); // avoid timing attacks
+    await verifyPassword((process.env as any).TEST_ARGON_HASH, "invalid_text"); // avoid timing attacks
     return { error: "Username or Password is wrong", user: null }; // security matter
   }
-  const isValid = await argon2.verify(user.password, password);
+  const isValid = await verifyPassword(user.password, password);
   if (!isValid) {
     // log attempted login with wrong password
     return { error: "Username or Password is wrong", user: null }; // security matter
