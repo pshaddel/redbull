@@ -98,7 +98,7 @@ jobs:
           time: 10s
       - name: Test
         env:
-          DATABASE_URL: DATABASE_URL=DATABASE_URL=mongodb://user:password@127.0.0.1:27017/database
+          DATABASE_URL: DATABASE_URL=mongodb://user:password@127.0.0.1:27017/database
           TEST_ARGON_HASH: $argon2id$v=19$m=65536,t=3,p=4$bG9uZ2VyX3NlY3JldA$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko
           HASH_SALT: longer_secret
           HASH_SECRET: longer_secret
