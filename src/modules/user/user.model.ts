@@ -69,6 +69,11 @@ export const userRegistrationValidator = z.object({
   password: passwordValidator
 });
 
+export const userLoginValidator = z.object({
+  username: usernameValidator,
+  password: z.string()
+});
+
 export type UserCreationObject = z.infer<typeof userRegistrationValidator>;
 
 export const UserModel = model<User>("User", UserSchema);

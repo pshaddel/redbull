@@ -46,6 +46,26 @@ describe("User", () => {
         expect(result.status).toBe(400);
       });
     });
+
+    describe("Login a User", () => {
+      it("Should be able to login a user which is already registered", async () => {
+        // Arrange
+        await request(app).post("/api/v1/users/register").send({
+          password: "testUser!123",
+          username: "poorshad@gmail.com"
+        });
+        // Action
+        const result = await request(app).post("/api/v1/users/login").send({
+          password: "testUser!123",
+          username: "poorshad@gmail.com"
+        });
+        // Assert
+        expect(result.status).toBe(200);
+        expect(result.body).toHaveProperty("access_token");
+        expect(result.body).toHaveProperty("refresh_token");
+        expect(result.body).toHaveProperty("user");
+      });
+    });
   });
 
   describe("Password Validator", () => {

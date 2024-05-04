@@ -30,10 +30,18 @@ export async function registerUser(
   }
 }
 
+/**
+ * Checks if the user exists and if the password is correct by checking the hash
+ * @param username valid username which is a email
+ * @param password user password in plain text
+ * @returns
+ */
 export async function authenticateUser(
   username: string,
   password: string
-): Promise<{ error: string | null; user: User | null }> {
+): Promise<
+  { error: string; user: null } | { error: null; user: { username: string } }
+> {
   const user = await UserModel.findOne({ username });
   if (!user) {
     // log attempted login with wrong username
@@ -46,5 +54,5 @@ export async function authenticateUser(
     // log attempted login with wrong password
     return { error: "Username or Password is wrong", user: null }; // security matter
   }
-  return { error: null, user };
+  return { error: null, user: { username: user?.username } }; // should not return the password
 }
