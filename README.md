@@ -1,7 +1,7 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/pshaddel/ts-express-mongoose/commits/master)
 ![Maintaner](https://img.shields.io/badge/maintainer-Poorshad-blue)
 [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://github.com/pshaddel)
-[![codecov](https://codecov.io/gh/pshaddel/ts-express-prisma/branch/master/graph/badge.svg?token=DLRH7L3EVR)](https://codecov.io/gh/pshaddel/ts-express-prisma)
+[![codecov](https://codecov.io/gh/pshaddel/redbull/graph/badge.svg?token=NDKG441UN0)](https://codecov.io/gh/pshaddel/redbull)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/pshaddel/ts-express-mongoose/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](https://github.com/pshaddel/ts-express-mongoose/compare)
 
@@ -51,10 +51,10 @@ Be aware that you need `DATABASE_URL` as a env variable on your system for runni
 ### Test Coverage Badge
 
 For using your own coverage badge you need to do 3 things:
+
 - Register in [CodeCov](https://app.codecov.io/)
 - Copy the Secret `CODECOV_TOKEN` value and add it to your project secrets.
 - Copy the Badge address from CodeCov dashboard to README file.
-
 
 ## Linter
 
