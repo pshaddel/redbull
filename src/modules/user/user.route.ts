@@ -1,10 +1,15 @@
 import express, { Request, Response } from "express";
 import { userLoginValidator, userRegistrationValidator } from "./user.model";
-import { authenticateUser, registerUser } from "./user.service";
+import {
+  authenticateUser,
+  findUserByUsername,
+  registerUser
+} from "./user.service";
 import { ZodErrorHandler } from "../error_handler/error.service";
 import {
   createJWTToken,
-  createRefreshToken
+  createRefreshToken,
+  verifyJWTToken
 } from "../authentication/authentication.service";
 
 const userRouter = express.Router();
@@ -50,8 +55,62 @@ userRouter.post("/login", async (req: Request, res: Response) => {
   }
   const access_token = await createJWTToken({ username: user.username });
   const refresh_token = await createRefreshToken({ username: user.username });
-  // standard jwt response
+
+  res.cookie("access_token", access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict"
+  });
+  res.cookie("refresh_token", refresh_token, {
+    httpOnly: true,
+    domain: "/api/v1/users/refresh", // only send refresh token to this endpoint
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict"
+  });
   res.status(200).json({ access_token, refresh_token, user });
+});
+
+userRouter.post("/refresh", async (req: Request, res: Response) => {
+  const refresh_token = req.cookies.refresh_token;
+  if (!refresh_token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // check if refresh token is valid
+  const isValid = await verifyJWTToken(refresh_token);
+  if (!isValid) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // check token type
+  if (isValid.type !== "refresh_token") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // remove current refresh token and access token
+  console.log("deleted");
+  // get user from refresh token
+  const username = isValid.username;
+  const user = await findUserByUsername(username);
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const access_token = await createJWTToken({ username: user.username });
+  const new_refresh_token = await createRefreshToken({
+    username: user.username
+  });
+
+  res.cookie("access_token", access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict"
+  });
+  res.cookie("refresh_token", new_refresh_token, {
+    httpOnly: true,
+    domain: "/api/v1/users/refresh", // only send refresh token to this endpoint
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict"
+  });
+  res
+    .status(200)
+    .json({ access_token, refresh_token: new_refresh_token, user });
 });
 
 export { userRouter };

@@ -6,7 +6,7 @@ import { userRouter } from "./modules/user/user.route";
 import "@total-typescript/ts-reset";
 import dotenv from "dotenv";
 import { connect } from "./connections/db";
-
+import cookieParser from "cookie-parser";
 dotenv.config({ path: "../.env" });
 
 const app = express();
@@ -15,6 +15,8 @@ connect();
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test")
   app.use((_req: Request, res: Response, next: NextFunction) => {

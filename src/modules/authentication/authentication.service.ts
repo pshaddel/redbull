@@ -44,6 +44,7 @@ export async function createJWTToken(payload: { username: string }) {
       },
       function (err, token) {
         if (err) {
+          // console.error(err);
           resolve(null);
         }
         resolve(token);
@@ -52,7 +53,7 @@ export async function createJWTToken(payload: { username: string }) {
   );
 }
 
-export async function verifyJWTToken<T>(
+export async function verifyJWTToken<T = { username: string }>(
   token: string
 ): Promise<(T & { type: "access_token" | "refresh_token" }) | null> {
   const publicKey = process.env.JWT_PUBLIC_KEY as string;
@@ -65,6 +66,7 @@ export async function verifyJWTToken<T>(
       },
       function (err, decoded) {
         if (err) {
+          // console.error(err);
           resolve(null);
         }
         resolve(decoded as T & { type: "access_token" | "refresh_token" });
@@ -85,6 +87,7 @@ export async function createRefreshToken(payload: { username: string }) {
       },
       function (err, token) {
         if (err) {
+          // console.error(err);
           resolve(null);
         }
         resolve(token);

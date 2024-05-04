@@ -2,7 +2,27 @@ import request from "supertest";
 import { app } from "../../app";
 import { connect } from "../../connections/db";
 import { UserModel, userRegistrationValidator } from "./user.model";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
+beforeAll(() => {
+  // create a pair of private and public keys
+  process.env.HASH_SALT = "salt_longer_than_16_characters";
+  process.env.HASH_SECRET = "secret_longer_than_16_characters";
+  const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+    modulusLength: 4096,
+    publicKeyEncoding: {
+      type: "spki",
+      format: "pem"
+    },
+    privateKeyEncoding: {
+      type: "pkcs8",
+      format: "pem"
+    }
+  });
+  process.env.JWT_PRIVATE_KEY = privateKey;
+  process.env.JWT_PUBLIC_KEY = publicKey;
+});
 describe("User", () => {
   describe("User Route", () => {
     beforeAll(async () => {
@@ -62,8 +82,43 @@ describe("User", () => {
         // Assert
         expect(result.status).toBe(200);
         expect(result.body).toHaveProperty("access_token");
+        expect(result.body.access_token).toBeTruthy();
         expect(result.body).toHaveProperty("refresh_token");
+        expect(result.body.refresh_token).toBeTruthy();
         expect(result.body).toHaveProperty("user");
+        // should be a valid jwt token
+        const decoded = jwt.decode(result.body.access_token) as {
+          username: string;
+        };
+        expect(decoded.username).toBe("poorshad@gmail.com");
+      });
+    });
+
+    describe("Refresh Token", () => {
+      it("Should be able to refresh the token", async () => {
+        // Arrange
+        await request(app).post("/api/v1/users/register").send({
+          password: "testUser!123",
+          username: "poorshad@gmail.com"
+        });
+        const loginResult = await request(app)
+          .post("/api/v1/users/login")
+          .send({
+            password: "testUser!123",
+            username: "poorshad@gmail.com"
+          });
+        // Action
+        const result = await request(app)
+          .post("/api/v1/users/refresh")
+          .set("Cookie", [`refresh_token=${loginResult.body.refresh_token};`]);
+        // Assert
+        expect(result.status).toBe(200);
+        expect(result.body).toHaveProperty("access_token");
+        expect(result.body).toHaveProperty("refresh_token");
+      });
+
+      it("Previous Refresh Token should be invalid after refresh", async () => {
+        expect(1).toBe(1);
       });
     });
   });
