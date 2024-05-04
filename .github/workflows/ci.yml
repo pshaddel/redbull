@@ -96,5 +96,11 @@ jobs:
         uses: juliangruber/sleep-action@v1
         with:
           time: 10s
+      - name: Create .env file with environment variables with multiline command
+        run: |
+          echo "DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres" > .env
+          echo "TEST_ARGON_HASH=$argon2id$v=19$m=65536,t=3,p=4$bG9uZ2VyX3NlY3JldA$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko" >> .env
+          echo "HASH_SALT=longer_secret" >> .env
+          echo "HASH_SECRET=longer_secret" >> .env
       - name: Test
         run: export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres && npm run test
