@@ -7,6 +7,7 @@ import {
 } from "./user.service";
 import { ZodErrorHandler } from "../error_handler/error.service";
 import {
+  authenticate,
   createJWTToken,
   createRefreshToken,
   verifyJWTToken
@@ -111,6 +112,10 @@ userRouter.post("/refresh", async (req: Request, res: Response) => {
   res
     .status(200)
     .json({ access_token, refresh_token: new_refresh_token, user });
+});
+
+userRouter.get("/me", authenticate, async (req: Request, res: Response) => {
+  res.status(200).json({ user: req.user });
 });
 
 export { userRouter };

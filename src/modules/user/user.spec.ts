@@ -5,6 +5,8 @@ import { UserModel, userRegistrationValidator } from "./user.model";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
+const username = "poorshad@gmail.com";
+const password = "testUser!123";
 beforeAll(() => {
   // create a pair of private and public keys
   process.env.HASH_SALT = "salt_longer_than_16_characters";
@@ -123,6 +125,39 @@ describe("User", () => {
 
       it("Previous Refresh Token should be invalid after refresh", async () => {
         expect(1).toBe(1);
+      });
+    });
+
+    describe("Protected Middleware /me", () => {
+      it("Should return the user information", async () => {
+        // Arrange
+        await request(app).post("/api/v1/users/register").send({
+          password,
+          username
+        });
+        const loginResult = await request(app)
+          .post("/api/v1/users/login")
+          .send({
+            password,
+            username
+          });
+        // Action
+        const result = await request(app)
+          .get("/api/v1/users/me")
+          .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+        // Assert
+        expect(result.status).toBe(200);
+        expect(result.body.user).toHaveProperty("username");
+        expect(result.body.user.username).toBe(username);
+      });
+
+      it("Should get Unauthorized when we pass an invalid token", async () => {
+        // Action
+        const result = await request(app)
+          .get("/api/v1/users/me")
+          .set("Cookie", [`access_token=invalid_token;`]);
+        // Assert
+        expect(result.status).toBe(401);
       });
     });
   });

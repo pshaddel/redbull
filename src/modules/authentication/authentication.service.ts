@@ -1,4 +1,5 @@
 import argon2 from "argon2";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export async function hashPassword(password: string) {
@@ -94,4 +95,35 @@ export async function createRefreshToken(payload: { username: string }) {
       }
     )
   );
+}
+
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: {
+      username: string;
+    }; // Replace 'any' with the actual type of 'user'
+  }
+}
+
+export async function authenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const access_token = req.cookies.access_token;
+  if (!access_token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // check if access token is valid
+  const isValid = await verifyJWTToken(access_token);
+  if (!isValid) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // check token type
+  if (isValid.type !== "access_token") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  // attach user to request
+  req.user = { username: isValid.username };
+  next();
 }
