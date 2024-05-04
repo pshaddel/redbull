@@ -1,9 +1,7 @@
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/pshaddel/ts-express-mongoose/commits/master)
-![Maintaner](https://img.shields.io/badge/maintainer-Poorshad-blue)
-[![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://github.com/pshaddel)
 [![codecov](https://codecov.io/gh/pshaddel/redbull/graph/badge.svg?token=NDKG441UN0)](https://codecov.io/gh/pshaddel/redbull)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/pshaddel/ts-express-mongoose/blob/master/LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](https://github.com/pshaddel/ts-express-mongoose/compare)
+![Maintaner](https://img.shields.io/badge/maintainer-Poorshad-blue)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/pshaddel/redbull/blob/master/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](https://github.com/pshaddel/redbull/compare)
 
 # TS Express Mongoose
 
