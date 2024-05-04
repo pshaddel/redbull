@@ -115,6 +115,10 @@ describe("User", () => {
         expect(result.status).toBe(200);
         expect(result.body).toHaveProperty("access_token");
         expect(result.body).toHaveProperty("refresh_token");
+        expect(result.headers["set-cookie"]).toEqual([
+          `access_token=${result.body.access_token}; Path=/; HttpOnly; SameSite=Strict`,
+          `refresh_token=${result.body.refresh_token}; Domain=/api/v1/users/refresh; Path=/; HttpOnly; SameSite=Strict`
+        ]);
       });
 
       it("Previous Refresh Token should be invalid after refresh", async () => {
