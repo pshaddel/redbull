@@ -102,4 +102,8 @@ jobs:
           TEST_ARGON_HASH: $argon2id$v=19$m=65536,t=3,p=4$bG9uZ2VyX3NlY3JldA$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko
           HASH_SALT: longer_secret
           HASH_SECRET: longer_secret
-        run: npm run test
+        run: npm run test:cov
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
