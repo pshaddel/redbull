@@ -1,3 +1,4 @@
+import { ObjectId } from "mongoose";
 import {
   hashPassword,
   verifyPassword
@@ -6,7 +7,7 @@ import { User, UserCreationObject, UserModel } from "./user.model";
 
 export async function findUserByUsername(
   username: string
-): Promise<User | null> {
+): Promise<(User & { _id: ObjectId }) | null> {
   return UserModel.findOne({ username }, { password: 0 });
 }
 

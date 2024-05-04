@@ -1,6 +1,11 @@
 import express from "express";
 import { z } from "zod";
-import { searchContent } from "./content.service";
+import {
+  addContentToFavorite,
+  contentValidator,
+  removeContentFromFavorite,
+  searchContent
+} from "./content.service";
 import { pixabay } from "../external_api/pixabay";
 
 export const contentRouter = express.Router();
@@ -54,4 +59,30 @@ contentRouter.get("/video", async (req, res) => {
     contents: searchResults.contents,
     total: searchResults.total
   });
+});
+
+contentRouter.post("/favorite", async (req, res) => {
+  const username = req.user?.username;
+  const result = contentValidator.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: "BAD_REQUEST" });
+  }
+  const { error } = await addContentToFavorite(username as string, result.data);
+  if (error) {
+    return res.status(500).json({ error });
+  }
+  return res.json({ success: true });
+});
+
+contentRouter.delete("/favorite/:id", async (req, res) => {
+  const username = req.user?.username;
+  const id = req.params.id;
+  if (!id) {
+    return res.status(400).json({ error: "BAD_REQUEST" });
+  }
+  const { error } = await removeContentFromFavorite(username as string, id);
+  if (error) {
+    return res.status(500).json({ error });
+  }
+  return res.json({ success: true });
 });

@@ -3,11 +3,16 @@ import { connect } from "../../connections/db";
 import { UserModel } from "../user/user.model";
 import request from "supertest";
 import { app } from "../../app";
-import { Content } from "./content.service";
+import {
+  Content,
+  addContentToFavorite,
+  removeContentFromFavorite
+} from "./content.service";
 const username = "poorshad@gmail.com";
 const password = "testUser!123";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import axios from "axios";
+import { FavoriteContentModel } from "./favorite_content.model";
 jest.mock("axios", () => ({
   get: async (url: string) => {
     if (url.includes("videos")) {
@@ -134,6 +139,7 @@ describe("Content", () => {
   });
   beforeEach(async () => {
     await UserModel.deleteMany();
+    await FavoriteContentModel.deleteMany();
   });
   it("Should be able to get content data", async () => {
     // Arrange
@@ -229,5 +235,112 @@ describe("Content", () => {
     // Assert
     expect(imageResult.status).toBe(401);
     expect(videoResult.status).toBe(401);
+  });
+
+  it("Should be able to add a content to favorite", async () => {
+    // Arrange
+    await request(app).post("/api/v1/users/register").send({
+      password,
+      username
+    });
+    // Action
+    await addContentToFavorite(username, {
+      id: "1",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    // Assert
+    const user = await FavoriteContentModel.findOne({ username });
+    expect(user).toBeDefined();
+    expect(user?.contents).toBeDefined();
+    expect(user?.contents.length).toBe(1);
+    expect(user?.contents[0].id).toBe("1");
+  });
+
+  it("Should not be able to add a content twice to the favorites", async () => {
+    // Arrange
+    await request(app).post("/api/v1/users/register").send({
+      password,
+      username
+    });
+    // Action
+    await addContentToFavorite(username, {
+      id: "1",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    await addContentToFavorite(username, {
+      id: "1",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    // Assert
+    const user = await FavoriteContentModel.findOne({ username });
+    expect(user).toBeDefined();
+    expect(user?.contents).toBeDefined();
+    expect(user?.contents.length).toBe(1);
+    expect(user?.contents[0].id).toBe("1");
+  });
+
+  it("Should be able to remove a content to favorite", async () => {
+    // Arrange
+    await request(app).post("/api/v1/users/register").send({
+      password,
+      username
+    });
+    await addContentToFavorite(username, {
+      id: "1",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    await addContentToFavorite(username, {
+      id: "2",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    await addContentToFavorite(username, {
+      id: "3",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    // Action
+    await removeContentFromFavorite(username, "2");
+    // Assert
+    const user = await FavoriteContentModel.findOne({ username });
+    expect(user).toBeDefined();
+    expect(user?.contents).toBeDefined();
+    expect(user?.contents.length).toBe(2);
+    expect(user?.contents[0].id).toBe("1");
+    expect(user?.contents[1].id).toBe("3");
   });
 });

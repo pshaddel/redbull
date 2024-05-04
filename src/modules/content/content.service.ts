@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { findUserByUsername } from "../user/user.service";
+import { FavoriteContentModel } from "./favorite_content.model";
 
 export async function searchContent(
   engine: SearchEngine,
@@ -50,3 +52,63 @@ export const contentValidator = z.object({
 });
 
 export type Content = z.infer<typeof contentValidator>;
+
+export async function addContentToFavorite(username: string, content: Content) {
+  try {
+    const user = await findUserByUsername(username);
+    if (!user) {
+      return { error: "USER_NOT_FOUND" };
+    }
+    // only add to the array if the content  id is not already in the array
+    await FavoriteContentModel.updateOne(
+      {
+        username: username,
+        "contents.id": {
+          $ne: content.id
+        }
+      },
+      {
+        $push: {
+          contents: content
+        }
+      },
+      {
+        upsert: true
+      }
+    );
+    return { success: true, error: null };
+  } catch (error) {
+    // log error
+    console.log(error);
+    return { error: "ERROR", success: false };
+  }
+}
+
+export async function removeContentFromFavorite(
+  username: string,
+  contentId: string
+) {
+  try {
+    const user = await findUserByUsername(username);
+    if (!user) {
+      return { error: "USER_NOT_FOUND" };
+    }
+    await FavoriteContentModel.updateOne(
+      {
+        username: username
+      },
+      {
+        $pull: {
+          contents: {
+            id: contentId
+          }
+        }
+      }
+    );
+    return { success: true, error: null };
+  } catch (error) {
+    // log error
+    console.log(error);
+    return { error: "ERROR", success: false };
+  }
+}
