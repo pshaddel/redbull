@@ -7,6 +7,8 @@ import "@total-typescript/ts-reset";
 import dotenv from "dotenv";
 import { connect } from "./connections/db";
 import cookieParser from "cookie-parser";
+import { contentRouter } from "./modules/content/content.route";
+import { authenticate } from "./modules/authentication/authentication.service";
 dotenv.config({ path: "../.env" });
 
 const app = express();
@@ -33,6 +35,7 @@ app.get("/ping", (_req: Request, res: Response) => {
 });
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/contents", authenticate, contentRouter);
 
 app.use((_, res) => {
   res.status(404).send("Not found");
