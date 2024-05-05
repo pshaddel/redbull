@@ -112,3 +112,20 @@ export async function removeContentFromFavorite(
     return { error: "ERROR", success: false };
   }
 }
+
+export async function getFavoriteContent(username: string) {
+  try {
+    const user = await findUserByUsername(username);
+    if (!user) {
+      return { error: "USER_NOT_FOUND", contents: [] };
+    }
+    const favoriteContent = await FavoriteContentModel.findOne({
+      username: username
+    });
+    return { contents: favoriteContent?.contents ?? [], error: null };
+  } catch (error) {
+    // log error
+    console.log(error);
+    return { error: "ERROR", contents: [] };
+  }
+}

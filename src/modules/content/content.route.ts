@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   addContentToFavorite,
   contentValidator,
+  getFavoriteContent,
   removeContentFromFavorite,
   searchContent
 } from "./content.service";
@@ -85,4 +86,13 @@ contentRouter.delete("/favorite/:id", async (req, res) => {
     return res.status(500).json({ error });
   }
   return res.json({ success: true });
+});
+
+contentRouter.get("/favorite", async (req, res) => {
+  const username = req.user?.username;
+  const { error, contents } = await getFavoriteContent(username as string);
+  if (error) {
+    return res.status(500).json({ error });
+  }
+  return res.json({ contents });
 });

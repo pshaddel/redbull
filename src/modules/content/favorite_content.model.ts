@@ -3,7 +3,8 @@ import { InferSchemaType, Schema, model } from "mongoose";
 const favoriteContentSchema = new Schema({
   username: {
     type: String,
-    required: true
+    required: true,
+    index: true
   },
   contents: {
     type: [

@@ -6,6 +6,7 @@ import { app } from "../../app";
 import {
   Content,
   addContentToFavorite,
+  getFavoriteContent,
   removeContentFromFavorite
 } from "./content.service";
 const username = "poorshad@gmail.com";
@@ -342,5 +343,123 @@ describe("Content", () => {
     expect(user?.contents.length).toBe(2);
     expect(user?.contents[0].id).toBe("1");
     expect(user?.contents[1].id).toBe("3");
+  });
+
+  it("Should be able to get a favorite contents", async () => {
+    // Arrange
+    await request(app).post("/api/v1/users/register").send({
+      password,
+      username
+    });
+    await addContentToFavorite(username, {
+      id: "1",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    await addContentToFavorite(username, {
+      id: "2",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    await addContentToFavorite(username, {
+      id: "3",
+      src: "src",
+      width: 100,
+      height: 100,
+      thumbnail: "thumbnail",
+      thumbnailWidth: 100,
+      thumbnailHeight: 100,
+      type: "image"
+    });
+    // Action
+    const result = await getFavoriteContent(username);
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.error).toBeNull();
+    expect(result.contents).toBeDefined();
+    expect(result.contents.length).toBe(3);
+  });
+
+  it("Content routes should work with the same logic", async () => {
+    // Arrange
+    await request(app).post("/api/v1/users/register").send({
+      password,
+      username
+    });
+    const loginResult = await request(app).post("/api/v1/users/login").send({
+      password,
+      username
+    });
+    // Action
+    await request(app)
+      .post("/api/v1/contents/favorite")
+      .send({
+        id: "1",
+        src: "src",
+        width: 100,
+        height: 100,
+        thumbnail: "thumbnail",
+        thumbnailWidth: 100,
+        thumbnailHeight: 100,
+        type: "image"
+      })
+      .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+    // should not add this one since it is already added
+    await request(app)
+      .post("/api/v1/contents/favorite")
+      .send({
+        id: "1",
+        src: "src",
+        width: 100,
+        height: 100,
+        thumbnail: "thumbnail",
+        thumbnailWidth: 100,
+        thumbnailHeight: 100,
+        type: "image"
+      })
+      .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+    // add a new one
+    await request(app)
+      .post("/api/v1/contents/favorite")
+      .send({
+        id: "2",
+        src: "src",
+        width: 100,
+        height: 100,
+        thumbnail: "thumbnail",
+        thumbnailWidth: 100,
+        thumbnailHeight: 100,
+        type: "image"
+      })
+      .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+    // get favorite contents
+    const favoriteResult = await request(app)
+      .get("/api/v1/contents/favorite")
+      .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+    expect(favoriteResult.status).toBe(200);
+    expect(favoriteResult.body.contents).toBeDefined();
+    expect(favoriteResult.body.contents.length).toBe(2);
+    // remove a content
+    await request(app)
+      .delete("/api/v1/contents/favorite/1")
+      .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+    // get favorite contents
+    const favoriteResult2 = await request(app)
+      .get("/api/v1/contents/favorite")
+      .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+    expect(favoriteResult2.status).toBe(200);
+    expect(favoriteResult2.body.contents).toBeDefined();
+    expect(favoriteResult2.body.contents.length).toBe(1);
+    expect(favoriteResult2.body.contents[0].id).toBe("2");
   });
 });
