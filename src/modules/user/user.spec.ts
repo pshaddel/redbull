@@ -110,6 +110,34 @@ describe("User", () => {
         };
         expect(decoded.username).toBe("poorshad@gmail.com");
       });
+
+      it("Should be safe against timing attacks", async () => {
+        // Arrange
+        await request(app).post("/api/v1/users/register").send({
+          password,
+          username
+        });
+        // Action
+        const startTime = Date.now();
+        const result = await request(app).post("/api/v1/users/login").send({
+          password,
+          username: "none_existing@gmail.com"
+        });
+        const timeDiff = Date.now() - startTime;
+        const startTime2 = Date.now();
+        const result2 = await request(app).post("/api/v1/users/login").send({
+          password: "wrong_password",
+          username
+        });
+        const timeDiff2 = Date.now() - startTime2;
+        // Assert
+        expect(result.status).toBe(401);
+        expect(result2.status).toBe(401);
+        // the difference should be less than 20%
+        const difference =
+          (100 * Math.abs(timeDiff - timeDiff2)) / ((timeDiff + timeDiff2) / 2);
+        expect(difference).toBeLessThan(20);
+      });
     });
 
     describe("Refresh Token", () => {
