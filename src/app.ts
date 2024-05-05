@@ -9,11 +9,14 @@ import { connect } from "./connections/db";
 import cookieParser from "cookie-parser";
 import { contentRouter } from "./modules/content/content.route";
 import { authenticate } from "./modules/authentication/authentication.service";
+import { getRedisClient } from "./connections/redis";
 dotenv.config({ path: "../.env" });
 
 const app = express();
 
 connect();
+getRedisClient();
+
 app.use(cors());
 app.use(helmet());
 app.use(express.json());

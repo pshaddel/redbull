@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export async function connect() {
+export async function connect(): Promise<mongoose.Connection> {
   return new Promise((resolve, reject) => {
     if (process.env.NODE_ENV === "dev") console.log("Connecting to database");
     mongoose.connect(

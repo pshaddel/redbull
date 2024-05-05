@@ -8,6 +8,7 @@ import {
   searchContent
 } from "./content.service";
 import { pixabay } from "../external_api/pixabay";
+import { ZodErrorHandler } from "../error_handler/error.service";
 
 export const contentRouter = express.Router();
 
@@ -19,7 +20,8 @@ const contentSearchValidator = z.object({
 contentRouter.get("/image", async (req, res) => {
   const result = contentSearchValidator.safeParse(req.query);
   if (!result.success) {
-    return res.status(400).json({ error: "BAD_REQUEST" });
+    const error = ZodErrorHandler(result.error);
+    return res.status(400).json({ error });
   }
 
   const searchResults = await searchContent(pixabay.getImage, {

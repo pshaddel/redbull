@@ -1,21 +1,21 @@
 version: "3.1"
 
 networks:
-  TS-EXPRESS:
+  REDBULL_NETWORK:
     driver: bridge
 
 services:
-  # redis:
-  #   container_name: "ts-express-redis"
-  #   image: "bitnami/redis:6.0.8"
-  #   environment:
-  #     REDIS_PASSWORD: password123
-  #   ports:
-  #     - 6379:6379
-  #   networks:
-  #     - TS-EXPRESS
+  redis:
+    container_name: "redbull-redis"
+    image: "bitnami/redis:6.0.8"
+    environment:
+      REDIS_PASSWORD: password123
+    ports:
+      - 6379:6379
+    networks:
+      - REDBULL_NETWORK
   mongodb_bitnami:
-    container_name: "ts-express-mongodb"
+    container_name: "redbull-mongodb"
     image: "bitnami/mongodb:latest"
     environment:
       MONGODB_ROOT_PASSWORD: root
@@ -25,6 +25,4 @@ services:
     ports:
       - 27017:27017
     networks:
-      - TS-EXPRESS
-
-# DATABASE_URL=mongodb://user:password@127.0.0.1:27017/database
+      - REDBULL_NETWORK
