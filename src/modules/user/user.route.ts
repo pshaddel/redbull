@@ -68,7 +68,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
   });
   res.cookie("refresh_token", refresh_token, {
     httpOnly: true,
-    domain: "/api/v1/users/refresh", // only send refresh token to this endpoint
+    path: "/api/v1/users/refresh", // only send refresh token to this endpoint
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict"
   });
@@ -109,7 +109,7 @@ userRouter.post("/refresh", async (req: Request, res: Response) => {
   });
   res.cookie("refresh_token", new_refresh_token, {
     httpOnly: true,
-    domain: "/api/v1/users/refresh", // only send refresh token to this endpoint
+    path: "/api/v1/users/refresh", // only send refresh token to this endpoint
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict"
   });
