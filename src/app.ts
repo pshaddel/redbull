@@ -11,6 +11,7 @@ import { contentRouter } from "./modules/content/content.route";
 import { authenticate } from "./modules/authentication/authentication.service";
 import { getRedisClient } from "./connections/redis";
 import fs from "fs";
+import { logger } from "./modules/log/logger";
 dotenv.config({ path: "../.env" });
 
 const app = express();
@@ -57,7 +58,7 @@ app.use((_, res) => {
 
 if (!config.isTestEnvironment) {
   app.listen(config.port);
-  console.info("App is listening on port:", config.port);
+  logger.info("App is listening on port:", config.port);
 }
 
 export { app };
