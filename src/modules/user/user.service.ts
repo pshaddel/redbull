@@ -43,7 +43,9 @@ export async function authenticateUser(
 ): Promise<
   { error: string; user: null } | { error: null; user: { username: string } }
 > {
-  const user = await UserModel.findOne({ username });
+  const user = (await UserModel.findOne({ username }, { password: 1 })) as {
+    password: string;
+  } | null;
   if (!user) {
     // log attempted login with wrong username
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,5 +57,5 @@ export async function authenticateUser(
     // log attempted login with wrong password
     return { error: "Username or Password is wrong", user: null }; // security matter
   }
-  return { error: null, user: { username: user?.username } }; // should not return the password
+  return { error: null, user: { username } }; // should not return the password
 }

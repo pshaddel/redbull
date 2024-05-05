@@ -4,7 +4,8 @@ const favoriteContentSchema = new Schema({
   username: {
     type: String,
     required: true,
-    index: true
+    index: true,
+    unique: true
   },
   contents: {
     type: [
