@@ -8,7 +8,10 @@ import dotenv from "dotenv";
 import { connect } from "./connections/db";
 import cookieParser from "cookie-parser";
 import { contentRouter } from "./modules/content/content.route";
-import { authenticate } from "./modules/authentication/authentication.service";
+import {
+  authenticate,
+  ddos
+} from "./modules/authentication/authentication.service";
 import { getRedisClient } from "./connections/redis";
 import fs from "fs";
 import { logger } from "./modules/log/logger";
@@ -32,6 +35,7 @@ if (!process.env.JWT_PRIVATE_KEY && process.env.NODE_ENV !== "test") {
   process.env.JWT_PUBLIC_KEY = publicKey;
 }
 
+app.use(ddos); // general rate limiter to prevent DDOS
 app.use(cors());
 app.use(helmet());
 app.use(express.json());

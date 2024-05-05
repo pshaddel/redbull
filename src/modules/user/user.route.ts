@@ -8,6 +8,7 @@ import {
 import { StandardError, ZodErrorHandler } from "../error_handler/error.service";
 import {
   authenticate,
+  bruteForce,
   createJWTToken,
   createRefreshToken,
   verifyJWTToken
@@ -17,29 +18,34 @@ import { logger } from "../log/logger";
 
 const userRouter = express.Router();
 
-userRouter.post("/register", async (req: Request, res: Response) => {
-  const result = await userRegistrationValidator.safeParseAsync(req.body);
+/** we have to limit this to prevent attacker from trying to create a user list */
+userRouter.post(
+  "/register",
+  bruteForce,
+  async (req: Request, res: Response) => {
+    const result = await userRegistrationValidator.safeParseAsync(req.body);
 
-  if (!result.success) {
-    const error = ZodErrorHandler(result.error);
-    return sendError(res, new StandardError("BAD_REQUEST", error.toString()));
+    if (!result.success) {
+      const error = ZodErrorHandler(result.error);
+      return sendError(res, new StandardError("BAD_REQUEST", error.toString()));
+    }
+
+    const user = result.data;
+    const { error } = await registerUser({
+      username: user.username,
+      password: user.password
+    });
+
+    if (error) {
+      console.log(error.error, error.extraInformation);
+      return sendError(res, error);
+    } else {
+      return sendData(res, null);
+    }
   }
+);
 
-  const user = result.data;
-  const { error } = await registerUser({
-    username: user.username,
-    password: user.password
-  });
-
-  if (error) {
-    console.log(error.error, error.extraInformation);
-    return sendError(res, error);
-  } else {
-    return sendData(res, null);
-  }
-});
-
-userRouter.post("/login", async (req: Request, res: Response) => {
+userRouter.post("/login", bruteForce, async (req: Request, res: Response) => {
   const result = userLoginValidator.safeParse(req.body);
 
   if (!result.success) {

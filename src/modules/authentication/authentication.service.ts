@@ -3,6 +3,9 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { logger } from "../log/logger";
 import { StandardError } from "../error_handler/error.service";
+import { getRedisClient } from "../../connections/redis";
+import { RateLimiterRedis } from "rate-limiter-flexible";
+import { sendError } from "../../helpers/response_handler";
 
 export async function hashPassword(password: string): Promise<{
   error: StandardError | null;
@@ -132,3 +135,41 @@ export async function authenticate(
   req.user = { username: isValid.username };
   next();
 }
+
+const ddosLimiter = new RateLimiterRedis({
+  storeClient: getRedisClient(),
+  keyPrefix: "rate_limit_ddos",
+  points: 5, // 5 requests
+  duration: 1, // per 1 second by IP
+  blockDuration: 10 // block for 10 seconds
+});
+
+const bruteForceLimiter = new RateLimiterRedis({
+  storeClient: getRedisClient(),
+  keyPrefix: "rate_limit_brute_force",
+  points: 5, // 5 requests
+  duration: 60 * 5, // per 5 minutes by IP
+  blockDuration: 60 * 15 // block for 15 minutes
+});
+
+/**
+ * It is a function that returns a middleware function that limits the rate of requests
+ * @param limiter
+ * @returns
+ */
+function rateLimiterMiddleware(limiter: RateLimiterRedis) {
+  return async function (req: Request, res: Response, next: NextFunction) {
+    try {
+      if (process.env.ENABLE_RATE_LIMITER === "true") {
+        await limiter.consume(req.ip);
+        console.info("ip:", req.ip);
+      }
+      next();
+    } catch (error) {
+      sendError(res, new StandardError("TOO_MANY_REQUESTS"));
+    }
+  };
+}
+
+export const ddos = rateLimiterMiddleware(ddosLimiter);
+export const bruteForce = rateLimiterMiddleware(bruteForceLimiter);

@@ -36,6 +36,6 @@ const errors = {
   INTERNAL_SERVER_ERROR: 500,
   RESOURCE_ALREADY_EXISTS: 409,
   USERNAME_OR_PASSWORD_INCORRECT: 401,
-  RATE_LIMIT: 429
+  TOO_MANY_REQUESTS: 429
 } as const;
 export type ErrorMessages = keyof typeof errors;

@@ -52,7 +52,7 @@ const getImage: SearchEngine = async ({ query, page = 1 }) => {
         return {
           contents: [],
           total: 0,
-          error: new StandardError("RATE_LIMIT")
+          error: new StandardError("TOO_MANY_REQUESTS")
         };
       } else {
         logger.error(error);
@@ -113,7 +113,7 @@ const getVideo: SearchEngine = async ({ query, page = 1 }) => {
         return {
           contents: [],
           total: 0,
-          error: new StandardError("RATE_LIMIT")
+          error: new StandardError("TOO_MANY_REQUESTS")
         };
       } else {
         return {
