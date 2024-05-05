@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { findUserByUsername } from "../user/user.service";
 import { FavoriteContentModel } from "./favorite_content.model";
+import { logger } from "../log/logger";
 
 export async function searchContent(
   engine: SearchEngine,
@@ -15,8 +16,7 @@ export async function searchContent(
     });
     return results;
   } catch (error) {
-    // log error
-    console.log(error);
+    logger.error(error);
     return { contents: [], total: 0, error: "ERROR" };
   }
 }
@@ -78,8 +78,7 @@ export async function addContentToFavorite(username: string, content: Content) {
     );
     return { success: true, error: null };
   } catch (error) {
-    // log error
-    console.log(error);
+    logger.error(error);
     return { error: "ERROR", success: false };
   }
 }
@@ -107,8 +106,7 @@ export async function removeContentFromFavorite(
     );
     return { success: true, error: null };
   } catch (error) {
-    // log error
-    console.log(error);
+    logger.error(error);
     return { error: "ERROR", success: false };
   }
 }
@@ -124,8 +122,7 @@ export async function getFavoriteContent(username: string) {
     });
     return { contents: favoriteContent?.contents ?? [], error: null };
   } catch (error) {
-    // log error
-    console.log(error);
+    logger.error(error);
     return { error: "ERROR", contents: [] };
   }
 }

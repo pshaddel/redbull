@@ -4,6 +4,7 @@ import {
   verifyPassword
 } from "../authentication/authentication.service";
 import { User, UserCreationObject, UserModel } from "./user.model";
+import { logger } from "../log/logger";
 
 export async function findUserByUsername(
   username: string
@@ -29,8 +30,7 @@ export async function registerUser(
     });
     return { error: null };
   } catch (error: unknown) {
-    // send to logger
-    console.log(error);
+    logger.error(error);
     return { error: "INTERNAL_SERVER_ERROR" };
   }
 }

@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { logger } from "../log/logger";
 
 export async function hashPassword(password: string) {
   try {
@@ -11,8 +12,7 @@ export async function hashPassword(password: string) {
     });
     return { error: null, hash };
   } catch (error) {
-    // send to logger
-    console.log(error);
+    logger.error(error);
     return { error: "INTERNAL_SERVER_ERROR", hash: null };
   }
 }
@@ -27,8 +27,7 @@ export async function verifyPassword(
     });
     return isValid;
   } catch (error) {
-    // send to logger
-    console.log(error);
+    logger.error(error);
     return false;
   }
 }
@@ -47,7 +46,7 @@ export async function createJWTToken(payload: {
       },
       function (err, token) {
         if (err) {
-          console.error(err);
+          logger.error(err);
           resolve(null);
         } else {
           resolve(token ? token : null);
@@ -70,7 +69,7 @@ export async function verifyJWTToken<T = { username: string }>(
       },
       function (err, decoded) {
         if (err) {
-          console.error(err);
+          logger.error(err);
           resolve(null);
         }
         resolve(decoded as T & { type: "access_token" | "refresh_token" });
@@ -91,7 +90,6 @@ export async function createRefreshToken(payload: { username: string }) {
       },
       function (err, token) {
         if (err) {
-          // console.error(err);
           resolve(null);
         }
         resolve(token);

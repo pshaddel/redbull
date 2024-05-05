@@ -163,7 +163,7 @@ describe("User", () => {
         expect(result.body).toHaveProperty("refresh_token");
         expect(result.headers["set-cookie"]).toEqual([
           `access_token=${result.body.access_token}; Path=/; HttpOnly; SameSite=Strict`,
-          `refresh_token=${result.body.refresh_token}; Domain=/api/v1/users/refresh; Path=/; HttpOnly; SameSite=Strict`
+          `refresh_token=${result.body.refresh_token}; Path=/api/v1/users/refresh; HttpOnly; SameSite=Strict`
         ]);
       });
 

@@ -1,4 +1,5 @@
 import ioredis from "ioredis";
+import { logger } from "../modules/log/logger";
 
 let redisClient: ioredis | null = null;
 /**
@@ -13,7 +14,7 @@ export function getRedisClient() {
       password: process.env.REDIS_PASSWORD
     });
     redisClient.on("connect", () => {
-      console.log("Redis connected");
+      logger.info("Redis connected!");
     });
   }
   return redisClient;
