@@ -2,6 +2,7 @@ import { z } from "zod";
 import { findUserByUsername } from "../user/user.service";
 import { FavoriteContentModel } from "./favorite_content.model";
 import { logger } from "../log/logger";
+import { StandardError } from "../error_handler/error.service";
 
 export async function searchContent(
   engine: SearchEngine,
@@ -17,7 +18,11 @@ export async function searchContent(
     return results;
   } catch (error) {
     logger.error(error);
-    return { contents: [], total: 0, error: "ERROR" };
+    return {
+      contents: [],
+      total: 0,
+      error: new StandardError("INTERNAL_SERVER_ERROR")
+    };
   }
 }
 
@@ -37,7 +42,7 @@ type Search = {
 export type SearchEngine = (searchEngine: Search) => Promise<{
   contents: Content[];
   total: number;
-  error: string | null;
+  error: StandardError | null;
 }>;
 
 export const contentValidator = z.object({
@@ -79,18 +84,21 @@ export async function addContentToFavorite(username: string, content: Content) {
     return { success: true, error: null };
   } catch (error) {
     logger.error(error);
-    return { error: "ERROR", success: false };
+    return {
+      error: new StandardError("INTERNAL_SERVER_ERROR"),
+      success: false
+    };
   }
 }
 
 export async function removeContentFromFavorite(
   username: string,
   contentId: string
-) {
+): Promise<{ success: boolean; error: StandardError | null }> {
   try {
     const user = await findUserByUsername(username);
     if (!user) {
-      return { error: "USER_NOT_FOUND" };
+      return { error: new StandardError("NOT_FOUND"), success: false };
     }
     await FavoriteContentModel.updateOne(
       {
@@ -107,15 +115,21 @@ export async function removeContentFromFavorite(
     return { success: true, error: null };
   } catch (error) {
     logger.error(error);
-    return { error: "ERROR", success: false };
+    return {
+      error: new StandardError("INTERNAL_SERVER_ERROR"),
+      success: false
+    };
   }
 }
 
-export async function getFavoriteContent(username: string) {
+export async function getFavoriteContent(username: string): Promise<{
+  contents: Content[];
+  error: StandardError | null;
+}> {
   try {
     const user = await findUserByUsername(username);
     if (!user) {
-      return { error: "USER_NOT_FOUND", contents: [] };
+      return { error: new StandardError("NOT_FOUND"), contents: [] };
     }
     const favoriteContent = await FavoriteContentModel.findOne({
       username: username
@@ -123,6 +137,6 @@ export async function getFavoriteContent(username: string) {
     return { contents: favoriteContent?.contents ?? [], error: null };
   } catch (error) {
     logger.error(error);
-    return { error: "ERROR", contents: [] };
+    return { error: new StandardError("INTERNAL_SERVER_ERROR"), contents: [] };
   }
 }

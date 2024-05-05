@@ -43,7 +43,7 @@ describe("User", () => {
           username: "testUser@email.com"
         });
         //Assert
-        expect(result.status).toBe(201);
+        expect(result.status).toBe(200);
       });
       it("Should get Bad Request when we pass an invalid email", async () => {
         //Act
@@ -53,10 +53,10 @@ describe("User", () => {
         });
         //Assert
         expect(result.status).toBe(400);
-        expect(result.body).toEqual([
-          { message: "Required", path: "username" },
-          { message: "Required", path: "password" }
-        ]);
+        expect(result.body).toEqual({
+          data: null,
+          error: "username Required, password Required"
+        });
       });
       it("Should get Bad Request when we are not passing name", async () => {
         //Act
@@ -80,8 +80,8 @@ describe("User", () => {
           username: "start@gmail.com"
         });
         // Assert
-        expect(result.status).toBe(400);
-        expect(result.body).toEqual({ error: "USER_ALREADY_EXISTS" });
+        expect(result.status).toBe(409);
+        expect(result.body.error).toEqual("Username already exists");
       });
     });
 

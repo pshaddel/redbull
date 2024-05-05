@@ -8,8 +8,9 @@ import {
   searchContent
 } from "./content.service";
 import { pixabay } from "../external_api/pixabay";
-import { ZodErrorHandler } from "../error_handler/error.service";
+import { StandardError, ZodErrorHandler } from "../error_handler/error.service";
 import { memoize } from "../../helpers/memoize";
+import { sendData, sendError } from "../../helpers/response_handler";
 
 export const contentRouter = express.Router();
 
@@ -22,7 +23,7 @@ contentRouter.get("/image", async (req, res) => {
   const result = contentSearchValidator.safeParse(req.query);
   if (!result.success) {
     const error = ZodErrorHandler(result.error);
-    return res.status(400).json({ error });
+    return sendError(res, new StandardError("BAD_REQUEST", error));
   }
 
   const searchResults = await memoize({
@@ -37,11 +38,10 @@ contentRouter.get("/image", async (req, res) => {
     })
   });
   if (searchResults.error) {
-    return res.status(500).json({ error: searchResults.error });
+    return sendError(res, new StandardError("INTERNAL_SERVER_ERROR"));
   }
   // handle rate limit error
-
-  return res.json({
+  return sendData(res, {
     contents: searchResults.contents,
     total: searchResults.total
   });

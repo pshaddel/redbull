@@ -5,13 +5,15 @@ import {
   findUserByUsername,
   registerUser
 } from "./user.service";
-import { ZodErrorHandler } from "../error_handler/error.service";
+import { StandardError, ZodErrorHandler } from "../error_handler/error.service";
 import {
   authenticate,
   createJWTToken,
   createRefreshToken,
   verifyJWTToken
 } from "../authentication/authentication.service";
+import { sendData, sendError } from "../../helpers/response_handler";
+import { logger } from "../log/logger";
 
 const userRouter = express.Router();
 
@@ -20,7 +22,7 @@ userRouter.post("/register", async (req: Request, res: Response) => {
 
   if (!result.success) {
     const error = ZodErrorHandler(result.error);
-    return res.status(400).json(error);
+    return sendError(res, new StandardError("BAD_REQUEST", error.toString()));
   }
 
   const user = result.data;
@@ -30,9 +32,10 @@ userRouter.post("/register", async (req: Request, res: Response) => {
   });
 
   if (error) {
-    return res.status(400).json({ error });
+    console.log(error.error, error.extraInformation);
+    return sendError(res, error);
   } else {
-    res.status(201).json({ message: "User created successfully" });
+    return sendData(res, null);
   }
 });
 
@@ -41,24 +44,28 @@ userRouter.post("/login", async (req: Request, res: Response) => {
 
   if (!result.success) {
     const error = ZodErrorHandler(result.error);
-    return res.status(400).json(error);
+    return sendError(res, new StandardError("BAD_REQUEST", error));
   }
 
   const { error, user } = await authenticateUser(
     result.data.username,
     result.data.password
   );
+
   if (error) {
-    return res.status(401).json({ error }); // put this in error handler
+    return sendError(res, error);
   }
+
   if (!user) {
-    return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+    logger.error("Not Error but User not found: " + result.data.username);
+    return sendError(res, new StandardError("INTERNAL_SERVER_ERROR"));
   }
+
   const access_token = await createJWTToken({ username: user.username });
   const refresh_token = await createRefreshToken({ username: user.username });
 
   if (!access_token || !refresh_token) {
-    return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+    return sendError(res, new StandardError("INTERNAL_SERVER_ERROR"));
   }
 
   res.cookie("access_token", access_token, {
@@ -72,7 +79,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict"
   });
-  res.status(200).json({ access_token, refresh_token, user });
+  sendData(res, { access_token, refresh_token, user });
 });
 
 userRouter.post("/refresh", async (req: Request, res: Response) => {
@@ -80,27 +87,35 @@ userRouter.post("/refresh", async (req: Request, res: Response) => {
   if (!refresh_token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  // check if refresh token is valid
+  /** check if refresh token is valid */
   const isValid = await verifyJWTToken(refresh_token);
   if (!isValid) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return sendError(res, new StandardError("UNAUTHORIZED"));
   }
-  // check token type
+
+  /**  check token type */
   if (isValid.type !== "refresh_token") {
-    return res.status(401).json({ error: "Unauthorized" });
+    return sendError(res, new StandardError("UNAUTHORIZED"));
   }
   // remove current refresh token and access token
   console.log("deleted");
-  // get user from refresh token
+
+  /**  get user from refresh token */
   const username = isValid.username;
   const user = await findUserByUsername(username);
+
   if (!user) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return sendError(res, new StandardError("UNAUTHORIZED"));
   }
+
   const access_token = await createJWTToken({ username: user.username });
   const new_refresh_token = await createRefreshToken({
     username: user.username
   });
+
+  if (!access_token || !new_refresh_token) {
+    return sendError(res, new StandardError("INTERNAL_SERVER_ERROR"));
+  }
 
   res.cookie("access_token", access_token, {
     httpOnly: true,
@@ -113,13 +128,15 @@ userRouter.post("/refresh", async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict"
   });
-  res
-    .status(200)
-    .json({ access_token, refresh_token: new_refresh_token, user });
+  return sendData(res, {
+    access_token,
+    refresh_token: new_refresh_token,
+    user
+  });
 });
 
 userRouter.get("/me", authenticate, async (req: Request, res: Response) => {
-  res.status(200).json({ user: req.user });
+  return sendData(res, { user: req.user });
 });
 
 export { userRouter };

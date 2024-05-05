@@ -2,8 +2,12 @@ import argon2 from "argon2";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { logger } from "../log/logger";
+import { StandardError } from "../error_handler/error.service";
 
-export async function hashPassword(password: string) {
+export async function hashPassword(password: string): Promise<{
+  error: StandardError | null;
+  hash: string | null;
+}> {
   try {
     const hash = await argon2.hash(password, {
       type: argon2.argon2id,
@@ -13,7 +17,7 @@ export async function hashPassword(password: string) {
     return { error: null, hash };
   } catch (error) {
     logger.error(error);
-    return { error: "INTERNAL_SERVER_ERROR", hash: null };
+    return { error: new StandardError("INTERNAL_SERVER_ERROR"), hash: null };
   }
 }
 

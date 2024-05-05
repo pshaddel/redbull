@@ -12,6 +12,9 @@ import { authenticate } from "./modules/authentication/authentication.service";
 import { getRedisClient } from "./connections/redis";
 import fs from "fs";
 import { logger } from "./modules/log/logger";
+import { sendError } from "./helpers/response_handler";
+import { StandardError } from "./modules/error_handler/error.service";
+
 dotenv.config({ path: "../.env" });
 
 const app = express();
@@ -36,7 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test")
-  app.use((_req: Request, res: Response, next: NextFunction) => {
+  app.use((_req, res, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
       "Access-Control-Allow-Headers",
@@ -52,8 +55,14 @@ app.get("/ping", (_req: Request, res: Response) => {
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/contents", authenticate, contentRouter);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  logger.error(err);
+  sendError(res, new StandardError("INTERNAL_SERVER_ERROR"));
+});
+
 app.use((_, res) => {
-  res.status(404).send("Not found");
+  sendError(res, new StandardError("NOT_FOUND"));
 });
 
 if (!config.isTestEnvironment) {

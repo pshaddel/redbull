@@ -4,6 +4,8 @@ import {
   contentValidator
 } from "../content/content.service";
 import axios from "axios";
+import { StandardError } from "../error_handler/error.service";
+import { logger } from "../log/logger";
 
 const imageURL = "https://pixabay.com/api/";
 const videoURL = "https://pixabay.com/api/videos/";
@@ -47,12 +49,26 @@ const getImage: SearchEngine = async ({ query, page = 1 }) => {
     // rate limit error
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 429) {
-        return { contents: [], total: 0, error: "Rate limit error" };
+        return {
+          contents: [],
+          total: 0,
+          error: new StandardError("RATE_LIMIT")
+        };
       } else {
-        return { contents: [], total: 0, error: "Unknown error" };
+        logger.error(error);
+        return {
+          contents: [],
+          total: 0,
+          error: new StandardError("INTERNAL_SERVER_ERROR")
+        };
       }
     } else {
-      return { contents: [], total: 0, error: "Unknown error" };
+      logger.error(error);
+      return {
+        contents: [],
+        total: 0,
+        error: new StandardError("INTERNAL_SERVER_ERROR")
+      };
     }
   }
 };
@@ -86,6 +102,7 @@ const getVideo: SearchEngine = async ({ query, page = 1 }) => {
         contents.push(newContent);
       } else {
         // write to logger
+        logger.error("Invalid content: " + JSON.stringify(content));
       }
     });
     return { contents, total, error: null };
@@ -93,12 +110,24 @@ const getVideo: SearchEngine = async ({ query, page = 1 }) => {
     // rate limit error
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 429) {
-        return { contents: [], total: 0, error: "Rate limit error" };
+        return {
+          contents: [],
+          total: 0,
+          error: new StandardError("RATE_LIMIT")
+        };
       } else {
-        return { contents: [], total: 0, error: "Unknown error" };
+        return {
+          contents: [],
+          total: 0,
+          error: new StandardError("INTERNAL_SERVER_ERROR")
+        };
       }
     } else {
-      return { contents: [], total: 0, error: "Unknown error" };
+      return {
+        contents: [],
+        total: 0,
+        error: new StandardError("INTERNAL_SERVER_ERROR")
+      };
     }
   }
 };

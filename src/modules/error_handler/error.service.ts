@@ -2,12 +2,10 @@ import { ZodError } from "zod";
 
 export function ZodErrorHandler(error: unknown) {
   if (error instanceof ZodError) {
-    const formattedErrors = error.errors.map((err) => ({
-      path: err.path.join("."),
-      message: err.message
-    }));
+    return error.errors
+      .map((err) => `${err.path.join(".")} ${err.message}`)
+      .join(", ");
     // Now you can return or throw the formattedErrors
-    return formattedErrors;
   } else {
     throw error;
   }
@@ -36,7 +34,8 @@ const errors = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500,
-  EMAIL_ALREADY_EXISTS: 400,
-  USERNAME_OR_PASSWORD_INCORRECT: 401
+  RESOURCE_ALREADY_EXISTS: 409,
+  USERNAME_OR_PASSWORD_INCORRECT: 401,
+  RATE_LIMIT: 429
 } as const;
 export type ErrorMessages = keyof typeof errors;
