@@ -138,6 +138,23 @@ describe("User", () => {
           (100 * Math.abs(timeDiff - timeDiff2)) / ((timeDiff + timeDiff2) / 2);
         expect(difference).toBeLessThan(20);
       });
+
+      it("Should be safe against no-sql injection", async () => {
+        // Arrange
+        await request(app).post("/api/v1/users/register").send({
+          password,
+          username
+        });
+        // Action
+        const result = await request(app)
+          .post("/api/v1/users/login")
+          .send({
+            password: "wrong_passworD!123",
+            username: { $gt: "" }
+          });
+        // Assert
+        expect(result.status).toBe(400);
+      });
     });
 
     describe("Refresh Token", () => {
