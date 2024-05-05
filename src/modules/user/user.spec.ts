@@ -67,6 +67,22 @@ describe("User", () => {
         //Assert
         expect(result.status).toBe(400);
       });
+
+      it("Should get bad requets when username already exists", async () => {
+        // Arrange
+        await request(app).post(endpoint).send({
+          password: "testUser!123",
+          username: "start@gmail.com"
+        });
+        // Action
+        const result = await request(app).post(endpoint).send({
+          password: "testUser!123",
+          username: "start@gmail.com"
+        });
+        // Assert
+        expect(result.status).toBe(400);
+        expect(result.body).toEqual({ error: "USER_ALREADY_EXISTS" });
+      });
     });
 
     describe("Login a User", () => {

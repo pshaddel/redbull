@@ -57,6 +57,10 @@ userRouter.post("/login", async (req: Request, res: Response) => {
   const access_token = await createJWTToken({ username: user.username });
   const refresh_token = await createRefreshToken({ username: user.username });
 
+  if (!access_token || !refresh_token) {
+    return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+  }
+
   res.cookie("access_token", access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

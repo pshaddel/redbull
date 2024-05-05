@@ -10,12 +10,23 @@ import cookieParser from "cookie-parser";
 import { contentRouter } from "./modules/content/content.route";
 import { authenticate } from "./modules/authentication/authentication.service";
 import { getRedisClient } from "./connections/redis";
+import fs from "fs";
 dotenv.config({ path: "../.env" });
 
 const app = express();
 
 connect();
 getRedisClient();
+
+if (!process.env.JWT_PRIVATE_KEY) {
+  // read it from file
+  fs.existsSync("private.key");
+  fs.existsSync("public.key");
+  const privateKey = fs.readFileSync("private.key", "utf8");
+  const publicKey = fs.readFileSync("public.key", "utf8");
+  process.env.JWT_PRIVATE_KEY = privateKey;
+  process.env.JWT_PUBLIC_KEY = publicKey;
+}
 
 app.use(cors());
 app.use(helmet());

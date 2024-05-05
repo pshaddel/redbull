@@ -9,6 +9,7 @@ import {
 } from "./content.service";
 import { pixabay } from "../external_api/pixabay";
 import { ZodErrorHandler } from "../error_handler/error.service";
+import { memoize } from "../../helpers/memoize";
 
 export const contentRouter = express.Router();
 
@@ -24,11 +25,16 @@ contentRouter.get("/image", async (req, res) => {
     return res.status(400).json({ error });
   }
 
-  const searchResults = await searchContent(pixabay.getImage, {
-    query: result.data.query,
-    page: parseInt(result.data.page),
-    pageSize: 10,
-    contentType: "image"
+  const searchResults = await memoize({
+    key: `image_${result.data.query}_${result.data.page}`,
+    // 24h
+    ttl: 60 * 60 * 24,
+    getResult: searchContent.bind(null, pixabay.getImage, {
+      query: result.data.query,
+      page: parseInt(result.data.page),
+      pageSize: 10,
+      contentType: "image"
+    })
   });
   if (searchResults.error) {
     return res.status(500).json({ error: searchResults.error });
@@ -47,12 +53,18 @@ contentRouter.get("/video", async (req, res) => {
     return res.status(400).json({ error: "BAD_REQUEST" });
   }
 
-  const searchResults = await searchContent(pixabay.getVideo, {
-    query: result.data.query,
-    page: parseInt(result.data.page),
-    pageSize: 10,
-    contentType: "video"
+  const searchResults = await memoize({
+    key: `video_${result.data.query}_${result.data.page}`,
+    // 24h
+    ttl: 60 * 60 * 24,
+    getResult: searchContent.bind(null, pixabay.getVideo, {
+      query: result.data.query,
+      page: parseInt(result.data.page),
+      pageSize: 10,
+      contentType: "video"
+    })
   });
+
   if (searchResults.error) {
     return res.status(500).json({ error: searchResults.error });
   }

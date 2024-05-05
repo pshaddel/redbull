@@ -33,7 +33,9 @@ export async function verifyPassword(
   }
 }
 
-export async function createJWTToken(payload: { username: string }) {
+export async function createJWTToken(payload: {
+  username: string;
+}): Promise<string | null> {
   const privateKey = process.env.JWT_PRIVATE_KEY as string;
   return new Promise((resolve) =>
     jwt.sign(
@@ -45,10 +47,11 @@ export async function createJWTToken(payload: { username: string }) {
       },
       function (err, token) {
         if (err) {
-          // console.error(err);
+          console.error(err);
           resolve(null);
+        } else {
+          resolve(token ? token : null);
         }
-        resolve(token);
       }
     )
   );
@@ -67,7 +70,7 @@ export async function verifyJWTToken<T = { username: string }>(
       },
       function (err, decoded) {
         if (err) {
-          // console.error(err);
+          console.error(err);
           resolve(null);
         }
         resolve(decoded as T & { type: "access_token" | "refresh_token" });

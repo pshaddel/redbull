@@ -15,6 +15,10 @@ export async function registerUser(
   user: UserCreationObject
 ): Promise<{ error: string | null }> {
   try {
+    const existingUser = await findUserByUsername(user.username);
+    if (existingUser) {
+      return { error: "USER_ALREADY_EXISTS" };
+    }
     const { hash, error } = await hashPassword(user.password);
     if (error) {
       return { error }; // maybe returning an status
