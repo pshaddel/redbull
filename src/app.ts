@@ -18,7 +18,7 @@ const app = express();
 connect();
 getRedisClient();
 
-if (!process.env.JWT_PRIVATE_KEY) {
+if (!process.env.JWT_PRIVATE_KEY && process.env.NODE_ENV !== "test") {
   // read it from file
   fs.existsSync("private.key");
   fs.existsSync("public.key");
