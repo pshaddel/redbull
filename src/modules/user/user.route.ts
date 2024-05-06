@@ -38,7 +38,7 @@ userRouter.post(
     });
 
     if (error) {
-      console.log(error.error, error.extraInformation);
+      logger.error(error);
       return sendError(res, error);
     } else {
       return sendData(res, null);
