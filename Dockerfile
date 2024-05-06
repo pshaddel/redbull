@@ -9,13 +9,15 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install any needed packages specified in package.json
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm i --ignore-scripts
 
 # Copy the rest of the application code to the working directory
 COPY . .
 
 # Compile TypeScript to JavaScript
 RUN npm run build
+
+RUN npm prune --production
 
 # Make port 8080 available to the world outside this container
 EXPOSE 3001
