@@ -6,6 +6,7 @@ import { StandardError } from "../error_handler/error.service";
 import { getRedisClient } from "../../connections/redis";
 import { RateLimiterRedis } from "rate-limiter-flexible";
 import { sendError } from "../../helpers/response_handler";
+import { config } from "../../../config";
 
 export async function hashPassword(password: string): Promise<{
   error: StandardError | null;
@@ -14,8 +15,8 @@ export async function hashPassword(password: string): Promise<{
   try {
     const hash = await argon2.hash(password, {
       type: argon2.argon2id,
-      salt: Buffer.from(process.env.HASH_SALT as string),
-      secret: Buffer.from(process.env.HASH_SECRET as string)
+      salt: Buffer.from(config.hash.salt as string),
+      secret: Buffer.from(config.hash.secret as string)
     });
     return { error: null, hash };
   } catch (error) {
@@ -30,7 +31,7 @@ export async function verifyPassword(
 ): Promise<boolean> {
   try {
     const isValid = await argon2.verify(hash, password, {
-      secret: Buffer.from(process.env.HASH_SECRET as string)
+      secret: Buffer.from(config.hash.secret as string)
     });
     return isValid;
   } catch (error) {
@@ -42,7 +43,7 @@ export async function verifyPassword(
 export async function createJWTToken(payload: {
   username: string;
 }): Promise<string | null> {
-  const privateKey = process.env.JWT_PRIVATE_KEY as string;
+  const privateKey = config.jwt.privateKey as string;
   return new Promise((resolve) =>
     jwt.sign(
       { ...payload, type: "access_token" },
@@ -66,7 +67,7 @@ export async function createJWTToken(payload: {
 export async function verifyJWTToken<T = { username: string }>(
   token: string
 ): Promise<(T & { type: "access_token" | "refresh_token" }) | null> {
-  const publicKey = process.env.JWT_PUBLIC_KEY as string;
+  const publicKey = config.jwt.publicKey as string;
   return new Promise((resolve) =>
     jwt.verify(
       token,
@@ -86,7 +87,7 @@ export async function verifyJWTToken<T = { username: string }>(
 }
 
 export async function createRefreshToken(payload: { username: string }) {
-  const privateKey = process.env.JWT_PRIVATE_KEY as string;
+  const privateKey = config.jwt.privateKey as string;
   return new Promise((resolve) =>
     jwt.sign(
       { ...payload, type: "refresh_token" },
@@ -160,7 +161,7 @@ const bruteForceLimiter = new RateLimiterRedis({
 function rateLimiterMiddleware(limiter: RateLimiterRedis) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
-      if (process.env.ENABLE_RATE_LIMITER === "true") {
+      if (config.features.rateLimiter) {
         await limiter.consume(req.ip);
         console.info("ip:", req.ip);
       }

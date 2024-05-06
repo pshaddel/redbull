@@ -6,6 +6,7 @@ import {
 import { User, UserCreationObject, UserModel } from "./user.model";
 import { logger } from "../log/logger";
 import { StandardError } from "../error_handler/error.service";
+import { config } from "../../../config";
 
 export async function findUserByUsername(
   username: string
@@ -59,7 +60,7 @@ export async function authenticateUser(
   } | null;
   if (!user) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await verifyPassword((process.env as any).TEST_ARGON_HASH, "invalid_text"); // avoid timing attacks
+    await verifyPassword(config.hash.testHash as string, "invalid_text"); // avoid timing attacks
     return {
       error: new StandardError("UNAUTHORIZED", "Username or Password is wrong"),
       user: null

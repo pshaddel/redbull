@@ -4,7 +4,6 @@ import helmet from "helmet";
 import { config } from "../config";
 import { userRouter } from "./modules/user/user.route";
 import "@total-typescript/ts-reset";
-import dotenv from "dotenv";
 import { connect } from "./connections/db";
 import cookieParser from "cookie-parser";
 import { contentRouter } from "./modules/content/content.route";
@@ -18,21 +17,19 @@ import { logger } from "./modules/log/logger";
 import { sendError } from "./helpers/response_handler";
 import { StandardError } from "./modules/error_handler/error.service";
 
-dotenv.config({ path: "../.env" });
-
 const app = express();
 
 connect();
 getRedisClient();
 
-if (!process.env.JWT_PRIVATE_KEY && process.env.NODE_ENV !== "test") {
+if (!config.jwt.privateKey && !config.isTestEnvironment) {
   // read it from file
   fs.existsSync("private.key");
   fs.existsSync("public.key");
   const privateKey = fs.readFileSync("private.key", "utf8");
   const publicKey = fs.readFileSync("public.key", "utf8");
-  process.env.JWT_PRIVATE_KEY = privateKey;
-  process.env.JWT_PUBLIC_KEY = publicKey;
+  config.jwt.privateKey = privateKey;
+  config.jwt.publicKey = publicKey;
 }
 
 app.use(ddos); // general rate limiter to prevent DDOS
@@ -42,7 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "test")
+if (!config.isProdEnvironment)
   app.use((_req, res, next: NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(

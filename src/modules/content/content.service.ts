@@ -58,11 +58,17 @@ export const contentValidator = z.object({
 
 export type Content = z.infer<typeof contentValidator>;
 
-export async function addContentToFavorite(username: string, content: Content) {
+export async function addContentToFavorite(
+  username: string,
+  content: Content
+): Promise<{
+  success: boolean;
+  error: StandardError | null;
+}> {
   try {
     const user = await findUserByUsername(username);
     if (!user) {
-      return { error: "USER_NOT_FOUND" };
+      return { error: new StandardError("NOT_FOUND"), success: false };
     }
     // only add to the array if the content  id is not already in the array
     await FavoriteContentModel.updateOne(

@@ -6,6 +6,7 @@ import {
 import axios from "axios";
 import { StandardError } from "../error_handler/error.service";
 import { logger } from "../log/logger";
+import { config } from "../../../config";
 
 const imageURL = "https://pixabay.com/api/";
 const videoURL = "https://pixabay.com/api/videos/";
@@ -15,7 +16,7 @@ const getImage: SearchEngine = async ({ query, page = 1 }) => {
   try {
     const response = await axios.get<PixbayImageResponse>(imageURL, {
       params: {
-        key: process.env.PIXABAY_API_KEY as string,
+        key: config.pixabay.key,
         q: query,
         image_type: "photo",
         page: page.toString(),
@@ -77,7 +78,7 @@ const getVideo: SearchEngine = async ({ query, page = 1 }) => {
   try {
     const response = await axios.get<PixbayVideoResponse>(videoURL, {
       params: {
-        key: process.env.PIXABAY_API_KEY as string,
+        key: config.pixabay.key,
         q: query,
         page: page.toString(),
         per_page: pageSize

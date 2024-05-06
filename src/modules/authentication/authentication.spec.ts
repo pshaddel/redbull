@@ -7,12 +7,13 @@ import {
 } from "./authentication.service";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { config } from "../../../config";
 
 describe("Authentication", () => {
   describe("Hash Password and Verify Password", () => {
     beforeAll(() => {
-      process.env.HASH_SALT = "salt_longer_than_16_characters";
-      process.env.HASH_SECRET = "secret_longer_than_16_characters";
+      config.hash.salt = "salt_longer_than_16_characters";
+      config.hash.secret = "secret_longer_than_16_characters";
     });
     it("Should hash and verify password", async () => {
       const password = "test";
@@ -45,8 +46,8 @@ describe("Authentication", () => {
           format: "pem"
         }
       });
-      process.env.JWT_PRIVATE_KEY = privateKey;
-      process.env.JWT_PUBLIC_KEY = publicKey;
+      config.jwt.privateKey = privateKey;
+      config.jwt.publicKey = publicKey;
     });
 
     it("Should create a JWT token", async () => {

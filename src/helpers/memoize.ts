@@ -1,3 +1,4 @@
+import { config } from "../../config";
 import { getRedisClient } from "../connections/redis";
 import { logger } from "../modules/log/logger";
 
@@ -19,10 +20,10 @@ export async function memoize<T>({
   const client = getRedisClient();
   const result = await client.get(key);
   if (result) {
-    if (process.env.NODE_ENV === "dev") logger.info("cache hit: " + key);
+    if (config.isDevEnvironment) logger.info("cache hit: " + key);
     return JSON.parse(result) as T;
   }
-  if (process.env.NODE_ENV === "dev") logger.info("cache miss: " + key);
+  if (config.isDevEnvironment) logger.info("cache miss: " + key);
   const newResult = await getResult(); // argument are passed to the function using bind
   await client.set(key, JSON.stringify(newResult), "EX", ttl);
   return newResult;

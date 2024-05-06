@@ -15,6 +15,7 @@ import {
 } from "../authentication/authentication.service";
 import { sendData, sendError } from "../../helpers/response_handler";
 import { logger } from "../log/logger";
+import { config } from "../../../config";
 
 const userRouter = express.Router();
 
@@ -76,13 +77,13 @@ userRouter.post("/login", bruteForce, async (req: Request, res: Response) => {
 
   res.cookie("access_token", access_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: config.isProdEnvironment,
     sameSite: "strict"
   });
   res.cookie("refresh_token", refresh_token, {
     httpOnly: true,
     path: "/api/v1/users/refresh", // only send refresh token to this endpoint
-    secure: process.env.NODE_ENV === "production",
+    secure: config.isProdEnvironment,
     sameSite: "strict"
   });
   sendData(res, { access_token, refresh_token, user });
@@ -125,13 +126,13 @@ userRouter.post("/refresh", async (req: Request, res: Response) => {
 
   res.cookie("access_token", access_token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: config.isProdEnvironment,
     sameSite: "strict"
   });
   res.cookie("refresh_token", new_refresh_token, {
     httpOnly: true,
     path: "/api/v1/users/refresh", // only send refresh token to this endpoint
-    secure: process.env.NODE_ENV === "production",
+    secure: config.isProdEnvironment,
     sameSite: "strict"
   });
   return sendData(res, {

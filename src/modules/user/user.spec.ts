@@ -4,13 +4,14 @@ import { connect } from "../../connections/db";
 import { UserModel, userRegistrationValidator } from "./user.model";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { config } from "../../../config";
 
 const username = "poorshad@gmail.com";
 const password = "testUser!123";
 beforeAll(() => {
   // create a pair of private and public keys
-  process.env.HASH_SALT = "salt_longer_than_16_characters";
-  process.env.HASH_SECRET = "secret_longer_than_16_characters";
+  config.hash.salt = "salt_longer_than_16_characters";
+  config.hash.secret = "secret_longer_than_16_characters";
   const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
     modulusLength: 4096,
     publicKeyEncoding: {
@@ -22,8 +23,8 @@ beforeAll(() => {
       format: "pem"
     }
   });
-  process.env.JWT_PRIVATE_KEY = privateKey;
-  process.env.JWT_PUBLIC_KEY = publicKey;
+  config.jwt.privateKey = privateKey;
+  config.jwt.publicKey = publicKey;
 });
 describe("User", () => {
   describe("User Route", () => {

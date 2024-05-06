@@ -1,14 +1,15 @@
 import { getRedisClient } from "../connections/redis";
 import ioredis from "ioredis";
 import { memoize } from "./memoize";
+import { config } from "../../config";
 
 describe("memoize", () => {
   let client: ioredis;
 
   beforeAll(() => {
-    process.env.REDIS_HOST = "localhost";
-    process.env.REDIS_PORT = "6379";
-    process.env.REDIS_PASSWORD = "password123";
+    config.redis.host = "localhost";
+    config.redis.port = 6379;
+    config.redis.password = "password123";
     client = getRedisClient();
   });
   beforeEach(async () => {
