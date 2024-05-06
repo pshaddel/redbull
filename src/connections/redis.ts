@@ -1,5 +1,6 @@
 import ioredis from "ioredis";
 import { logger } from "../modules/log/logger";
+import { config } from "../../config";
 
 let redisClient: ioredis | null = null;
 /**
@@ -9,12 +10,15 @@ let redisClient: ioredis | null = null;
 export function getRedisClient() {
   if (!redisClient) {
     redisClient = new ioredis({
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT || 6379),
-      password: process.env.REDIS_PASSWORD
+      host: config.redis.host,
+      port: config.redis.port,
+      password: config.redis.password
     });
     redisClient.on("connect", () => {
       logger.info("Redis connected!");
+    });
+    redisClient.on("error", (error) => {
+      logger.error("Redis connection error", error);
     });
   }
   return redisClient;
