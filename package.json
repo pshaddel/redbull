@@ -1,5 +1,5 @@
 {
-  "name": "ts-express-mongoose-mongodb",
+  "name": "redbull",
   "version": "0.0.1",
   "description": "A boilerplate for express app using relational database and sequelize",
   "main": "index.js",
