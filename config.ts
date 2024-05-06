@@ -34,7 +34,7 @@ export const getConfig = () => {
       rateLimiter: !!process.env.ENABLE_RATE_LIMITER
     },
     pixabay: {
-      key: process.env.PIXABAY_KEY,
+      key: process.env.PIXABAY_API_KEY,
       baseURL: "https://pixabay.com/api/"
     }
   };
