@@ -3,92 +3,92 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/pshaddel/redbull/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](https://github.com/pshaddel/redbull/compare)
 
-# TS Express Mongoose
-
-<b>A Boilerplate for Express Apps with Mongoose</b>
+# RedBull Case Study
 
 ## Prerequisites
-
 Nodejs and NPM: You can install the latest version [here](https://nodejs.org/en/download)
-
 docker: Install docker engine from [here](https://docs.docker.com/get-docker/).
+docker-compose: installation from [here](https://docs.docker.com/compose/install/)
 
 ## Quick Start
 
+### Development
 First install dependencies:
-
 ```bash
 npm install
 ```
-
 And then start the project:
 
+Put these variables in a `.env` file at the root of the project:
+```bash
+DATABASE_URL=mongodb://user:password@127.0.0.1:27017/database
+PIXABAY_API_KEY=YOUR_KEY
+TEST_ARGON_HASH=$argon2id$v=19$m=65536,t=3,p=4$bG9uZ2VyX3NlY3JldA$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko
+HASH_SALT=longer_secret
+HASH_SECRET=longer_secret
+REDIS_PASSWORD=password123
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=password123
+PORT=3001
+```
+Change `PIXABAY_API_KEY` to your own key.
 ```bash
 npm run start:dev
 ```
 
+It also automatically creates a private and public key in the root of the project so you can use authentication using jwt.
+
 Now the service is up and is listening on: `http://127.0.0.1:3001`
 
-Be aware that you need `DATABASE_URL` as a env variable on your system for running the project or tests. You can create a `.env` file in Prisma folder to do that.
-
-## Testing
+### Testing
 
 We are using [Jest](https://jestjs.io/) as both test library and test runner. For running ts test files we are using [SWC](https://swc.rs/docs/usage/jest) which is a lot faster than [TS-NODE](https://github.com/TypeStrong/ts-node).
-This issue of detecting open handles on tests is open on jest: <https://github.com/prisma/prisma/issues/18146>
-
-Available scripts in `package.json` file:
-
 ```bash
 npm run test
 npm run test:watch
 npm run test:ci
 ```
-
-Be aware that you need `DATABASE_URL` as a env variable on your system for running the project or tests. You can create a `.env` file in Prisma folder to do that.
+Do the development step before running the tests. There is before script that runs docker-compose file and the tests have access to the database.
 
 ### Test Coverage Badge
+Test coverage badge is updated with each push
 
-For using your own coverage badge you need to do 3 things:
-
-- Register in [CodeCov](https://app.codecov.io/)
-- Copy the Secret `CODECOV_TOKEN` value and add it to your project secrets.
-- Copy the Badge address from CodeCov dashboard to README file.
-
-## Linter
-
+### Deploy
+run:
+```
+npm install
+```
+and then
+```
+npm run deploy
+```
+It runs all the needed containers including the node application on port 3000. 
+You have to have `PIXABAY_API_KEY` as a env variable or directly set it into the deploy.yml file.
+## Technology and Tools
+#### Linter
 For Linting we are using [ESLint](https://eslint.org/)
-
 ```bash
 npm run lint
 ```
-
-## Formatter
-
+#### Formatter
 For Formatting we are using [Prettier](https://prettier.io/).
-
 ```bash
 npm run prettier
 ```
-
-## Git Commit Message
-
+#### Git Commit Message
 It is forced to commit [Conventional Commit](https://www.conventionalcommits.org/en/v1.0.0/) to this repository. For commiting in this style you can use this [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=vivaxy.vscode-conventional-commits) or use this [CLI Tool](https://github.com/pshaddel/homebrew-conventionalcommit) that I implemented.
-
-### How to Disable it?
-
-Got to `.husky/commit-msg` and comment the line that checks commit message. You can also remove these two packagees if you do not want to have a standard on commit messages: `"@commitlint/cli": "^17.4.4"`, `"@commitlint/config-conventional": "^17.4.4"`
-
-## Documents
-
-Add your documents as TS comments in your project and then run this command for generating `.MD` files in `docs` folder:
-
-```bash
-npm run docs
-```
-
-## Validation
-
+#### Husky
+For formatting and linting before commit and also testing commit message standard.
+#### Validation
 We are using [Zod](https://zod.dev/) for validation of requests. Check out `src/user.service.ts` to see the example.
+#### MongoDB
+As a nosql database it was a good choice in here, even if we have millions of users with a lot of favorite contents there should be no problem.
+#### Redis
+I have used it for caching the requests that we are sending to Pixaboy, Pixaboy data is updated only once in a 24h, I am also caching the result so we do not need to pay for anything if we have are sending the same request.
+#### Express
+Quite Standard library, very mature without security issues.
+
 
 ## Pipeline
 
