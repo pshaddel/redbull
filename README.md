@@ -63,8 +63,9 @@ and then
 ```
 npm run deploy
 ```
+<b>This is just for testing, the hash secret and passwords should be replaced with k8s secrets in case of production usage</b>
 It runs all the needed containers including the node application on port 3000. 
-You have to have `PIXABAY_API_KEY` as a env variable or directly set it into the deploy.yml file.
+You have to have `PIXABAY_API_KEY`, and as a env variable or directly set it into the deploy.yml file.
 ## Technology and Tools
 #### Linter
 For Linting we are using [ESLint](https://eslint.org/)
@@ -81,17 +82,19 @@ It is forced to commit [Conventional Commit](https://www.conventionalcommits.org
 #### Husky
 For formatting and linting before commit and also testing commit message standard.
 #### Validation
-We are using [Zod](https://zod.dev/) for validation of requests. Check out `src/user.service.ts` to see the example.
+We are using [Zod](https://zod.dev/) for validation of requests.
 #### MongoDB
 As a nosql database it was a good choice in here, even if we have millions of users with a lot of favorite contents there should be no problem.
 #### Redis
 I have used it for caching the requests that we are sending to Pixaboy, Pixaboy data is updated only once in a 24h, I am also caching the result so we do not need to pay for anything if we have are sending the same request.
 #### Express
 Quite Standard library, very mature without security issues.
-
+#### Logger
+We are using winston for adding logs to the project.
 
 ## Pipeline
 
+### CI
 Pipeline has these steps:
 
 - Installing Dependencies
@@ -99,3 +102,37 @@ Pipeline has these steps:
 - Run Test Containers
 - Wait
 - Test
+- Add Test Coverage Badge
+### Publish Docker Image
+On this one I am building the application docker and push it to docker registry and we can use this image in docker or k8s
+
+### Architechture
+We have a modular monolith, each module consist of a `route.ts`, `service.ts` and a `model.ts` for separating the concerns.
+
+We have integration tests for everything. For some uses cases there are also unit tests for small functions.
+
+#### Authentication
+- username validation
+- password validation
+- jwt for access_token and refresh_token
+- hashing using argon
+- login
+- register
+- logout
+- ddos
+- brute
+- timing attack
+- not passing extra information
+- using http only cookies
+
+#### Content
+- search image
+- search video
+- get favorites
+- add favorites
+- remove favorites
+- memoize function for using redis
+
+We have login and register inside users module. but some functions which are purely related to authentication are moved to authentication module.
+
+
