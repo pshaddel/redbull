@@ -22,7 +22,8 @@
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "format:ci": "prettier --config .prettierrc 'src/**/*.ts' --check",
     "prepare": "husky install",
-    "docs": "npx typedoc"
+    "docs": "npx typedoc",
+    "deploy": "node ./generate_dev_keys.js && docker-compose -f deploy.yml up"
   },
   "repository": {
     "type": "git",
