@@ -1,0 +1,47 @@
+version: "3.1"
+
+networks:
+  REDBULL_NETWORK:
+    driver: bridge
+
+services:
+  redis:
+    container_name: "redbull-redis"
+    image: "bitnami/redis:6.0.8"
+    environment:
+      REDIS_PASSWORD: password123
+    ports:
+      - 6379:6379
+    networks:
+      - REDBULL_NETWORK
+  mongodb_bitnami:
+    container_name: "redbull-mongodb"
+    image: "bitnami/mongodb:latest"
+    environment:
+      MONGODB_ROOT_PASSWORD: root
+      MONGODB_USERNAME: user
+      MONGODB_PASSWORD: password
+      MONGODB_DATABASE: database
+    ports:
+      - 27017:27017
+    networks:
+      - REDBULL_NETWORK
+  node_app:
+    container_name: "node-app"
+    image: ghcr.io/pshaddel/redbull:latest
+    environment:
+       PORT: 3000
+       NODE_ENV: dev
+       DATABASE_URL: mongodb://user:password@127.0.0.1:27017/database
+       PIXABAY_API_KEY: 43690404-fea5fca12a477aa73969d09e5
+       TEST_ARGON_HASH: $$argon2id$$v=19$$m=65536,t=3,p=4$$bG9uZ2VyX3NlY3JldA$$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko
+       HASH_SALT: longer_secret
+       HASH_SECRET: longer_secret
+       REDIS_PASSWORD: password123
+       REDIS_HOST: 127.0.0.1
+       REDIS_PORT: 6379
+       REDIS_PASSWORD: password123
+    ports:
+      - 3000:3000
+    networks:
+      - REDBULL_NETWORK
