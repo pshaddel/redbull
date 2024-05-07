@@ -190,6 +190,34 @@ describe("User", () => {
       });
     });
 
+    describe("Logout", () => {
+      it("Should be able to logout", async () => {
+        // Arrange
+        await request(app).post("/api/v1/users/register").send({
+          password,
+          username
+        });
+        const loginResult = await request(app)
+          .post("/api/v1/users/login")
+          .send({
+            password,
+            username
+          });
+        // Action
+        const result = await request(app)
+          .post("/api/v1/users/logout")
+          .set("Cookie", [`access_token=${loginResult.body.access_token};`]);
+        // Assert
+        expect(result.status).toBe(200);
+        expect(result.headers["set-cookie"][0].includes("access_token=;")).toBe(
+          true
+        );
+        expect(
+          result.headers["set-cookie"][1].includes("refresh_token=;")
+        ).toBe(true);
+      });
+    });
+
     describe("Protected Middleware /me", () => {
       it("Should return the user information", async () => {
         // Arrange
