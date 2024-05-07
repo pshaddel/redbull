@@ -14,7 +14,7 @@
     "posttest": "docker compose -f docker-compose.test.yml down",
     "test:cov": "DATABASE_URL=mongodb://user:password@127.0.0.1:27017/database jest --coverage --forceExit --detectOpenHandles --runInBand --silent  --workerIdleMemoryLimit=512MB",
     "posttest:cov": "docker compose -f docker-compose.test.yml down",
-    "prestart:dev": "docker compose up -d",
+    "prestart:dev": "docker compose up -d && node ./generate_dev_keys.js",
     "start:dev": "NODE_ENV=dev tsc-watch --onSuccess 'node ./dist/src/app.js'",
     "poststart:dev": "docker compose down",
     "build": "tsc",
