@@ -33,7 +33,7 @@ services:
        PORT: 3000
        NODE_ENV: dev
        DATABASE_URL: mongodb://user:password@mongodb_bitnami:27017/database
-       PIXABAY_API_KEY: 43690404-fea5fca12a477aa73969d09e5
+       PIXABAY_API_KEY: ${PIXABAY_API_KEY}
        TEST_ARGON_HASH: $$argon2id$$v=19$$m=65536,t=3,p=4$$bG9uZ2VyX3NlY3JldA$$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko
        HASH_SALT: longer_secret
        HASH_SECRET: longer_secret
