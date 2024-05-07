@@ -71,7 +71,19 @@ export async function addContentToFavorite(
       return { error: new StandardError("NOT_FOUND"), success: false };
     }
     // only add to the array if the content  id is not already in the array
-    const result = await FavoriteContentModel.updateOne(
+    // check if the content is already in the array
+    const isThere = await FavoriteContentModel.findOne({
+      username: username,
+      "contents.id": content.id
+    });
+    if (isThere) {
+      return {
+        error: new StandardError("RESOURCE_ALREADY_EXISTS"),
+        success: false
+      };
+    }
+
+    await FavoriteContentModel.updateOne(
       {
         username: username,
         "contents.id": {
@@ -87,12 +99,6 @@ export async function addContentToFavorite(
         upsert: true
       }
     );
-    if (result.modifiedCount === 0) {
-      return {
-        error: new StandardError("RESOURCE_ALREADY_EXISTS"),
-        success: false
-      };
-    }
     return { success: true, error: null };
   } catch (error) {
     logger.error(error);
@@ -112,6 +118,7 @@ export async function removeContentFromFavorite(
     if (!user) {
       return { error: new StandardError("NOT_FOUND"), success: false };
     }
+
     const result = await FavoriteContentModel.updateOne(
       {
         username: username
