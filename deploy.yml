@@ -32,15 +32,18 @@ services:
     environment:
        PORT: 3000
        NODE_ENV: dev
-       DATABASE_URL: mongodb://user:password@127.0.0.1:27017/database
+       DATABASE_URL: mongodb://user:password@mongodb_bitnami:27017/database
        PIXABAY_API_KEY: 43690404-fea5fca12a477aa73969d09e5
        TEST_ARGON_HASH: $$argon2id$$v=19$$m=65536,t=3,p=4$$bG9uZ2VyX3NlY3JldA$$7ImNgJ6BLAKruqwzKN5lYX0hb4+aXW7NN9LSSAQ98ko
        HASH_SALT: longer_secret
        HASH_SECRET: longer_secret
        REDIS_PASSWORD: password123
-       REDIS_HOST: 127.0.0.1
+       REDIS_HOST: redis
        REDIS_PORT: 6379
        REDIS_PASSWORD: password123
+    volumes:
+      - ./private.key:/app/private.key
+      - ./public.key:/app/public.key
     ports:
       - 3000:3000
     networks:
