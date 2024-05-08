@@ -53,7 +53,7 @@ export const contentValidator = z.object({
   thumbnail: z.string(),
   thumbnailWidth: z.number(),
   thumbnailHeight: z.number(),
-  type: z.literal("image")
+  type: z.string()
 });
 
 export type Content = z.infer<typeof contentValidator>;

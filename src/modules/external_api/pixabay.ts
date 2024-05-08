@@ -43,6 +43,7 @@ const getImage: SearchEngine = async ({ query, page = 1 }) => {
         contents.push(newContent);
       } else {
         // write to logger
+        logger.error("Invalid content: " + JSON.stringify(content));
       }
     });
     return { contents, total, error: null };
@@ -97,7 +98,7 @@ const getVideo: SearchEngine = async ({ query, page = 1 }) => {
         thumbnail: content.videos.tiny.thumbnail,
         thumbnailWidth: content.videos.tiny.width,
         thumbnailHeight: content.videos.tiny.height,
-        type: "image" as const
+        type: "video" as const
       };
       if (contentValidator.safeParse(content)) {
         contents.push(newContent);
