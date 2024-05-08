@@ -15,6 +15,7 @@ const password = "testUser!123";
 import axios from "axios";
 import { FavoriteContentModel } from "./favorite_content.model";
 import { config } from "../../../config";
+import { getRedisClient } from "../../connections/redis";
 jest.mock("axios", () => ({
   get: async (url: string) => {
     if (url.includes("videos")) {
@@ -142,6 +143,8 @@ describe("Content", () => {
   beforeEach(async () => {
     await UserModel.deleteMany();
     await FavoriteContentModel.deleteMany();
+    const redis = getRedisClient();
+    await redis.flushall();
   });
   it("Should be able to get content data", async () => {
     // Arrange
@@ -194,7 +197,7 @@ describe("Content", () => {
     expect(result.body.contents.length).toBeGreaterThan(0);
     const content = result.body.contents[0] as Content;
     expect(content.id).toBeDefined();
-    expect(content.type).toBe("image");
+    expect(content.type).toBe("video");
     expect(content.src).toBeDefined();
     expect(content.width).toBeDefined();
     expect(content.height).toBeDefined();
